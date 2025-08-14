@@ -1,387 +1,281 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة المدير</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --primary-gradient-start: #28a745;
-            --primary-gradient-end: #1e7e34;
-            --accent-color: #1e7e34;
-        }
-        
-        body {
-            background: #f5f7fa;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        
-        .admin-header {
-            background: linear-gradient(135deg, var(--primary-gradient-start), var(--accent-color));
-            color: white;
-            padding: 1.5rem 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: none;
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-gradient-start), var(--accent-color));
-            color: white;
-            font-weight: 600;
-            padding: 1rem 1.2rem;
-        }
-        
-        .btn-action {
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .progress-bar-admin {
-            background: linear-gradient(90deg, var(--primary-gradient-start), var(--accent-color));
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: end;
-            padding-right: 8px;
-            color: white;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .auto-refresh {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #e9f7ef;
-            color: var(--accent-color);
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
-        
-        .auto-refresh i {
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        @media (max-width: 576px) {
-            .btn-action { width: 32px; height: 32px; }
-            .card-header { padding: 0.8rem 1rem; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>صفحة العضو</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    body { 
+      background: #f8f9fa; 
+      padding: 20px; 
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .loading { 
+      text-align: center; 
+      padding: 30px; 
+      font-size: 1.2em; 
+      color: #6c757d; 
+    }
+    .card { 
+      border-radius: 12px; 
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1); 
+    }
+    .progress { 
+      height: 32px; 
+      background: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      font-weight: bold;
+    }
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 0.95rem;
+      transition: width 0.4s ease;
+    }
+    .badge-rank {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    .rank-1 { background: #d4af37; color: #000; } /* ذهبي */
+    .rank-2 { background: #c0c0c0; color: #000; } /* فضي */
+    .rank-3 { background: #cd7f32; color: #fff; } /* برونزي */
+    .rank-other { background: #6c757d; color: #fff; } /* باقي المراكز */
+    .search-box { margin: 15px 0; }
+    .table th, .table td { 
+      text-align: center; 
+      vertical-align: middle; 
+    }
+    .table th { 
+      background-color: #495057; 
+      color: white; 
+    }
+    .table tbody tr:hover {
+      background-color: #f1f3f5;
+    }
+    .amount { color: #157347; font-weight: bold; }
+    .profit-amount { color: #d9534f; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <div class="container-fluid px-3 py-3">
-        <div class="admin-header text-center">
-            <h1><i class="bi bi-shield-lock"></i> لوحة المدير</h1>
-            <p class="mb-0">نظام إدارة رأس المال والأرباح</p>
-        </div>
 
-        <!-- إضافة عضو -->
+<div class="container-fluid">
+  <h1 class="text-center mb-4">صفحة العضو</h1>
+
+  <!-- حالة التحميل -->
+  <div id="loading" class="alert alert-info text-center">جاري التحميل...</div>
+
+  <div id="content" style="display: none;">
+    
+    <!-- رأس المال وآخر ربح -->
+    <div class="row">
+      <div class="col-lg-6 mb-4">
         <div class="card">
-            <div class="card-header">
-                <i class="bi bi-person-plus"></i> إضافة عضو جديد
-            </div>
-            <div class="card-body p-4">
-                <form id="addForm" class="row g-3">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control form-control-lg" id="name" placeholder="اسم العضو" required>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="number" class="form-control form-control-lg" id="contribution" placeholder="المساهمة (جنيه)" min="1" required>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-success w-100 btn-lg">إضافة</button>
-                    </div>
-                </form>
-            </div>
+          <div class="card-body text-center">
+            <h5>رأس المال الكلي</h5>
+            <p class="h3 text-primary" id="totalCapital">0</p>
+          </div>
         </div>
-
-        <!-- إضافة ربح يومي -->
+      </div>
+      <div class="col-lg-6 mb-4">
         <div class="card">
-            <div class="card-header">
-                <i class="bi bi-cash-stack"></i> إدخال الربح اليومي
-            </div>
-            <div class="card-body p-4">
-                <div class="row g-3 align-items-center">
-                    <div class="col-md-8">
-                        <input type="number" class="form-control form-control-lg" id="dailyProfit" placeholder="مبلغ الربح اليومي (جنيه)" min="1">
-                    </div>
-                    <div class="col-md-4">
-                        <button id="addProfit" class="btn btn-info w-100 btn-lg">إضافة الربح</button>
-                    </div>
-                </div>
-            </div>
+          <div class="card-body">
+            <h5>آخر ربح مسجل</h5>
+            <div id="latestProfit"></div>
+          </div>
         </div>
-
-        <!-- جدول الأعضاء -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-people"></i> إدارة الأعضاء</span>
-                <button id="copyData" class="btn btn-light btn-sm"><i class="bi bi-clipboard"></i> نسخ البيانات</button>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>الاسم</th>
-                                <th>المساهمة</th>
-                                <th>النسبة</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="membersTable">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- سجل الأرباح -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-cash-stack"></i> سجل الأرباح</span>
-                <span class="auto-refresh"><i class="bi bi-arrow-repeat"></i> التحديث التلقائي</span>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-bordered mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>التاريخ</th>
-                                <th>إجمالي الربح</th>
-                                <th>للأعضاء</th>
-                                <th>للإدارة</th>
-                                <th>المصروفات</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="profitsTable">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-center text-muted">
-            <p>آخر تحديث: <span id="lastUpdateAdmin">جاري التحميل...</span></p>
-        </div>
+      </div>
     </div>
 
-    <script>
-        let appData = {
-            capital: { total: 0, members: [] },
-            profits: [],
-            lastUpdated: new Date().toISOString()
-        };
+    <!-- بحث عن عضو -->
+    <div class="card mb-4 search-box">
+      <div class="card-body">
+        <h5>البحث عن عضو</h5>
+        <div class="input-group">
+          <input type="text" id="searchInput" class="form-control" placeholder="البحث بالرقم (ID)" />
+          <button onclick="searchMember()" class="btn btn-outline-primary">بحث</button>
+        </div>
+        <div id="searchResult" class="mt-2"></div>
+      </div>
+    </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            // تحديث تلقائي كل 30 ثانية
-            setInterval(loadData, 30000);
-            
-            document.getElementById('addForm').addEventListener('submit', addMember);
-            document.getElementById('addProfit').addEventListener('click', addDailyProfit);
-            document.getElementById('copyData').addEventListener('click', copyData);
-        });
+    <!-- جدول موحد: الأعضاء + النسب + الربح المستحق -->
+    <div class="card">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <span>📊 قائمة الأعضاء (مرتبة من الأكثر مساهمة)</span>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>الرقم</th>
+                <th>الاسم</th>
+                <th>المساهمة</th>
+                <th>النسبة</th>
+                <th>الربح المستحق (من 50%)</th>
+                <th>شريط التقدم</th>
+              </tr>
+            </thead>
+            <tbody id="membersTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        function loadData() {
-            fetch('data.json?t=' + new Date().getTime())
-                .then(r => r.json())
-                .then(data => {
-                    appData = data;
-                    updateTotals();
-                    renderMembers();
-                    renderProfits();
-                    document.getElementById('lastUpdateAdmin').textContent = 
-                        new Date(data.lastUpdated).toLocaleString('ar-EG');
-                })
-                .catch(() => {
-                    // بيانات افتراضية إذا فشل التحميل
-                    if (appData.capital.members.length === 0) {
-                        appData = {
-                            capital: { total: 0, members: [] },
-                            profits: [],
-                            lastUpdated: new Date().toISOString()
-                        };
-                        renderMembers();
-                        renderProfits();
-                    }
-                });
-        }
+<script>
+let data = {
+  capital: { total: 0, members: [] },
+  profits: [],
+  lastUpdated: new Date().toISOString()
+};
 
-        function getNextId() {
-            const ids = appData.capital.members
-                .map(m => parseInt(m.id.split('-')[1]))
-                .filter(n => !isNaN(n));
-            const maxId = ids.length ? Math.max(...ids) : 0;
-            return `ID-${maxId + 1}`;
-        }
+// تحميل البيانات من localStorage
+function loadData() {
+  const saved = localStorage.getItem('capitalData');
+  if (saved) {
+    try {
+      data = JSON.parse(saved);
+      updateTotals();
+    } catch (e) {
+      console.error("فشل تحميل البيانات", e);
+    }
+  }
+}
 
-        function addMember(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const contribution = parseFloat(document.getElementById('contribution').value);
-            const id = getNextId();
+// تحديث إجمالي رأس المال والنسب
+function updateTotals() {
+  const total = data.capital.members.reduce((sum, m) => sum + m.contribution, 0);
+  data.capital.total = total;
+  data.capital.members.forEach(m => {
+    m.percentage = total > 0 ? ((m.contribution / total) * 100).toFixed(2) : 0;
+  });
+}
 
-            appData.capital.members.push({ id, name, contribution });
-            updateTotals();
-            saveAndRefresh();
-            document.getElementById('addForm').reset();
-        }
+// عرض البيانات
+function render() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
 
-        function updateTotals() {
-            appData.capital.total = appData.capital.members.reduce((s, m) => s + m.contribution, 0);
-        }
+  // رأس المال
+  document.getElementById('totalCapital').textContent = data.capital.total.toLocaleString('en-US');
 
-        function addDailyProfit() {
-            const amount = parseFloat(document.getElementById('dailyProfit').value);
-            if (isNaN(amount) || amount <= 0) return alert('أدخل مبلغ ربح صحيح');
+  // آخر ربح
+  const latestProfit = document.getElementById('latestProfit');
+  if (data.profits.length > 0) {
+    const p = data.profits[data.profits.length - 1];
+    const partnersShare = p.distribution.partners;
+    latestProfit.innerHTML = `
+      <p class="mb-1">الربح: <strong>${p.amount.toLocaleString('en-US')}</strong></p>
+      <div>
+        <span class="badge bg-success">50% شركاء: ${partnersShare.toLocaleString('en-US')}</span>
+        <span class="badge bg-info text-dark">30% إدارة: ${(p.distribution.management).toLocaleString('en-US')}</span>
+        <span class="badge bg-warning">20% مصروفات: ${(p.distribution.expenses).toLocaleString('en-US')}</span>
+      </div>
+    `;
+  } else {
+    latestProfit.innerHTML = '<span class="text-muted">لم يتم تسجيل أي ربح بعد.</span>';
+  }
 
-            const date = new Date().toISOString().split('T')[0];
-            const distributedToMembers = amount * 0.5;
-            const management = amount * 0.3;
-            const expenses = amount * 0.2;
+  // ترتيب الأعضاء
+  const sortedMembers = [...data.capital.members].sort((a, b) => b.contribution - a.contribution);
+  const partnersShare = data.profits.length > 0 ? data.profits[data.profits.length - 1].distribution.partners : 0;
 
-            // حساب نصيب كل عضو
-            const membersShare = [];
-            const totalCapital = appData.capital.total;
-            appData.capital.members.forEach(member => {
-                const share = distributedToMembers * (member.contribution / totalCapital);
-                membersShare.push({ id: member.id, amount: share });
-            });
+  // ملء الجدول
+  const tableBody = document.getElementById('membersTable');
+  tableBody.innerHTML = '';
 
-            appData.profits.push({
-                date,
-                amount,
-                distributedToMembers,
-                management,
-                expenses,
-                details: { membersShare }
-            });
+  sortedMembers.forEach((m, index) => {
+    const rank = index + 1;
+    let badgeClass = 'rank-other';
+    if (rank === 1) badgeClass = 'rank-1';
+    else if (rank === 2) badgeClass = 'rank-2';
+    else if (rank === 3) badgeClass = 'rank-3';
 
-            appData.lastUpdated = new Date().toISOString();
-            saveAndRefresh();
-            document.getElementById('dailyProfit').value = '';
-        }
+    // حساب الربح المستحق
+    const memberProfit = data.capital.total > 0 ? (m.contribution / data.capital.total) * partnersShare : 0;
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="badge-rank ${badgeClass}">${rank}</div>
+      </td>
+      <td><code>${m.id}</code></td>
+      <td><strong>${m.name}</strong></td>
+      <td><span class="amount">${m.contribution.toLocaleString('en-US')}</span></td>
+      <td><span class="badge bg-primary">${m.percentage}%</span></td>
+      <td><span class="profit-amount">${memberProfit.toLocaleString('en-US')}</span></td>
+      <td>
+        <div class="progress" title="نسبة المساهمة: ${m.percentage}%">
+          <div class="progress-bar bg-gradient" 
+               style="width: ${m.percentage}%; background: linear-gradient(90deg, #4CAF50, #8BC34A);"
+               role="progressbar">
+            <span>${m.percentage}%</span>
+            <span>${memberProfit.toLocaleString('en-US')}</span>
+          </div>
+        </div>
+      </td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
 
-        function editMember(id) {
-            const member = appData.capital.members.find(m => m.id === id);
-            const newName = prompt('تعديل الاسم:', member.name);
-            if (newName === null || newName.trim() === '') return;
-            const newContribution = parseFloat(prompt('تعديل المساهمة:', member.contribution));
-            if (isNaN(newContribution) || newContribution <= 0) return alert('أدخل مبلغ صحيح');
+// بحث عن عضو
+function searchMember() {
+  const id = document.getElementById('searchInput').value.trim();
+  const result = document.getElementById('searchResult');
+  result.innerHTML = '';
+  if (!id) return;
 
-            member.name = newName;
-            member.contribution = newContribution;
-            updateTotals();
-            saveAndRefresh();
-        }
+  const member = data.capital.members.find(m => m.id == id);
+  if (member) {
+    const sorted = [...data.capital.members].sort((a, b) => b.contribution - a.contribution);
+    const rank = sorted.findIndex(m => m.id === member.id) + 1;
+    const partnersShare = data.profits.length > 0 ? data.profits[data.profits.length - 1].distribution.partners : 0;
+    const memberProfit = data.capital.total > 0 ? (member.contribution / data.capital.total) * partnersShare : 0;
 
-        function deleteMember(id) {
-            if (confirm('حذف العضو؟')) {
-                appData.capital.members = appData.capital.members.filter(m => m.id !== id);
-                updateTotals();
-                saveAndRefresh();
-            }
-        }
+    result.innerHTML = `
+      <div class="alert alert-success">
+        <strong>الاسم:</strong> ${member.name} |
+        <strong>المساهمة:</strong> ${member.contribution.toLocaleString('en-US')} |
+        <strong>النسبة:</strong> ${member.percentage}% |
+        <strong>الترتيب:</strong> #${rank} |
+        <strong>الربح المستحق:</strong> ${memberProfit.toLocaleString('en-US')}
+      </div>
+    `;
+  } else {
+    result.innerHTML = `<div class="alert alert-warning">العضو غير موجود.</div>`;
+  }
+}
 
-        function deleteProfit(index) {
-            if (confirm('حذف هذا اليوم من الأرباح؟')) {
-                appData.profits.splice(index, 1);
-                saveAndRefresh();
-            }
-        }
+// تحديث تلقائي كل 30 ثانية
+function startAutoRefresh() {
+  setInterval(() => {
+    loadData();
+    render();
+  }, 30000);
+}
 
-        function renderMembers() {
-            const total = appData.capital.total;
-            let html = '';
-            appData.capital.members.forEach(m => {
-                const pct = total ? ((m.contribution / total) * 100).toFixed(1) : 0;
-                html += `
-                    <tr>
-                        <td><strong>${m.id}</strong></td>
-                        <td>${m.name}</td>
-                        <td>${m.contribution.toLocaleString()}</td>
-                        <td>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar-admin" style="width: ${Math.max(5, pct)}%">
-                                    ${pct}%
-                                </div>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <button onclick="editMember('${m.id}')" class="btn btn-sm btn-outline-warning btn-action me-1"><i class="bi bi-pencil"></i></button>
-                            <button onclick="deleteMember('${m.id}')" class="btn btn-sm btn-outline-danger btn-action"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('membersTable').innerHTML = html || '<tr><td colspan="5" class="text-center py-4">لا يوجد أعضاء</td></tr>';
-        }
+// تهيئة الصفحة
+window.onload = function () {
+  loadData();
+  render();
+  startAutoRefresh();
+};
+</script>
 
-        function renderProfits() {
-            let html = '';
-            appData.profits.slice().reverse().forEach((p, i) => {
-                const index = appData.profits.length - 1 - i;
-                html += `
-                    <tr>
-                        <td><strong>${p.date}</strong></td>
-                        <td>${p.amount.toLocaleString()} جنيه</td>
-                        <td>${p.distributedToMembers.toLocaleString()} جنيه</td>
-                        <td>${p.management.toLocaleString()} جنيه</td>
-                        <td>${p.expenses.toLocaleString()} جنيه</td>
-                        <td class="text-center">
-                            <button onclick="deleteProfit(${index})" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('profitsTable').innerHTML = html || '<tr><td colspan="6" class="text-center py-4">لا يوجد أرباح</td></tr>';
-        }
-
-        function copyData() {
-            const json = JSON.stringify(appData, null, 2);
-            navigator.clipboard.writeText(json).then(() => {
-                alert('✅ تم نسخ البيانات!\n\n1. افتح ملف data.json على الاستضافة\n2. الصق البيانات\n3. احفظ الملف');
-            }).catch(err => {
-                prompt('فشل النسخ. من فضلك انسخ يدويًا:', json);
-            });
-        }
-
-        function saveAndRefresh() {
-            renderMembers();
-            renderProfits();
-            document.getElementById('lastUpdateAdmin').textContent = 
-                new Date(appData.lastUpdated).toLocaleString('ar-EG');
-        }
-    </script>
 </body>
 </html>
