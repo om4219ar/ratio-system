@@ -1,39 +1,14 @@
 {
   "capital": {
-    "total": 10000,
+    "total": 20,
     "members": [
       {
         "id": "ID-1",
-        "name": "أحمد محمد",
-        "contribution": 5000
-      },
-      {
-        "id": "ID-2",
-        "name": "سارة خالد",
-        "contribution": 3000
-      },
-      {
-        "id": "ID-3",
-        "name": "محمد علي",
-        "contribution": 2000
+        "name": "نادر عبد الحكيم عبد العظيم احمد",
+        "contribution": 20
       }
     ]
   },
-  "profits": [
-    {
-      "date": "2025-04-05",
-      "amount": 1000,
-      "distributedToMembers": 500,
-      "management": 300,
-      "expenses": 200,
-      "details": {
-        "membersShare": [
-          { "id": "ID-1", "amount": 250 },
-          { "id": "ID-2", "amount": 150 },
-          { "id": "ID-3", "amount": 100 }
-        ]
-      }
-    }
-  ],
-  "lastUpdated": "2025-04-05T08:00:00Z"
+  "profits": [],
+  "lastUpdated": "2025-08-14T12:03:05.422Z"
 }
